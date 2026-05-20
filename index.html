@@ -15,270 +15,581 @@
   <title>文字传 · 电脑手机互传</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --bg-2: #131a33;
-      --card: #1a2244;
-      --card-2: #222c54;
-      --border: #2a3566;
-      --text: #e6ecff;
-      --text-dim: #9aa8d6;
+      --bg: #070913;
+      --bg-glow-1: #1a1c3d;
+      --bg-glow-2: #21153b;
+      --card: rgba(15, 18, 36, 0.75);
+      --card-hover: rgba(22, 26, 48, 0.85);
+      --card-active: rgba(30, 35, 66, 0.95);
+      --border: rgba(99, 102, 241, 0.16);
+      --border-hover: rgba(99, 102, 241, 0.3);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      --text: #f3f4f6;
+      --text-dim: #94a3b8;
+      --text-muted: #64748b;
       --primary: #6366f1;
-      --primary-2: #818cf8;
+      --primary-hover: #4f46e5;
+      --primary-light: #818cf8;
+      --accent: #a855f7;
+      --accent-hover: #9333ea;
       --success: #10b981;
-      --danger: #ef4444;
-      --warn: #f59e0b;
-      --radius: 14px;
-      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --danger: #f43f5e;
+      --danger-bg: rgba(244, 63, 94, 0.1);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
       min-height: 100vh;
-      background: radial-gradient(1200px 600px at 10% -10%, #1d2a5e 0%, transparent 60%),
-                  radial-gradient(900px 500px at 110% 10%, #2a1a5e 0%, transparent 55%),
-                  var(--bg);
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-image: 
+        radial-gradient(circle at 10% 0%, var(--bg-glow-1) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, var(--bg-glow-2) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #070913 0%, #030408 100%);
+      background-attachment: fixed;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
     .wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 16px 16px 80px;
+      width: 100%;
+      max-width: 800px;
+      padding: 20px 20px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
+
+    /* 顶部导航栏 */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 4px 16px;
+      padding: 12px 6px;
+      background: rgba(15, 18, 36, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 8px;
     }
+
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 18px;
-      letter-spacing: 0.3px;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 20px;
+      background: linear-gradient(135deg, var(--text) 30%, var(--text-dim) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
+
     .logo-mark {
-      width: 32px; height: 32px;
-      border-radius: 9px;
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      display: grid; place-items: center;
-      color: white; font-size: 16px; font-weight: 800;
-      box-shadow: 0 6px 14px rgba(99,102,241,0.4);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      -webkit-text-fill-color: #ffffff; /* 重置渐变字 */
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+      position: relative;
+      overflow: hidden;
     }
+
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: 0.5s;
+    }
+
+    header:hover .logo-mark::before {
+      left: 100%;
+      transition: 0.8s ease-in-out;
+    }
+
     .status {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-dim);
-      padding: 6px 10px;
-      background: var(--card);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border);
       border-radius: 999px;
-    }
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--text-dim);
-      transition: background 0.3s;
-    }
-    .dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .dot.offline { background: var(--danger); }
-    .dot.loading { background: var(--warn); animation: pulse 1s infinite; }
-    @keyframes pulse {
-      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+      transition: all 0.3s ease;
     }
 
+    .status:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-hover);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dot.online {
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success), 0 0 4px var(--success);
+      transform: scale(1.1);
+    }
+
+    .dot.offline {
+      background: var(--danger);
+      box-shadow: 0 0 12px var(--danger);
+    }
+
+    .dot.loading {
+      background: var(--primary-light);
+      box-shadow: 0 0 12px var(--primary-light);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.25); opacity: 1; }
+    }
+
+    /* 主网格布局 (在大屏时左右两栏) */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .span-full {
+        grid-column: span 2;
+      }
+    }
+
+    /* 模块卡片 */
     .card {
       background: var(--card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
-    }
-    .card-title {
-      display: flex; align-items: center; justify-content: space-between;
-      margin: 0 0 12px;
-      font-size: 13px;
-      color: var(--text-dim);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-    .card-title .meta {
-      font-size: 11px;
-      color: var(--text-dim);
-      text-transform: none;
-      font-weight: 400;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
+    .card:hover {
+      transform: translateY(-4px);
+      background: var(--card-hover);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-lg), 0 0 25px rgba(99, 102, 241, 0.05);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.5px;
+    }
+
+    .card-title .title-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .meta {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    /* 文本展示区域 */
     .received-text {
-      min-height: 80px;
-      max-height: 280px;
+      min-height: 120px;
+      max-height: 320px;
       overflow-y: auto;
-      padding: 14px;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      padding: 16px;
+      background: rgba(3, 4, 8, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
       font-size: 16px;
-      line-height: 1.6;
+      line-height: 1.7;
       white-space: pre-wrap;
       word-break: break-word;
       color: var(--text);
+      transition: all 0.3s ease;
     }
+
     .received-text.empty {
-      color: var(--text-dim);
+      color: var(--text-muted);
       font-style: italic;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      border: 1px dashed var(--border);
     }
+
     .received-text.flash {
-      animation: flash 0.6s ease;
+      animation: flash-glow 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
-    @keyframes flash {
-      0% { background: rgba(99,102,241,0.4); }
-      100% { background: var(--bg-2); }
+
+    @keyframes flash-glow {
+      0% { 
+        background: rgba(99, 102, 241, 0.25);
+        border-color: var(--primary);
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+      }
+      100% { 
+        background: rgba(3, 4, 8, 0.4);
+        border-color: rgba(255, 255, 255, 0.03);
+        box-shadow: none;
+      }
+    }
+
+    /* 输入框编辑器 */
+    .editor-wrapper {
+      position: relative;
+      width: 100%;
     }
 
     textarea.editor {
       width: 100%;
       min-height: 120px;
-      max-height: 340px;
-      padding: 14px;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      max-height: 320px;
+      padding: 16px;
+      padding-bottom: 36px; /* 为字数留出空间 */
+      background: rgba(3, 4, 8, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
       color: var(--text);
       font-size: 16px;
-      line-height: 1.6;
+      line-height: 1.7;
       font-family: inherit;
       resize: vertical;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
-    textarea.editor:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-    textarea.editor::placeholder { color: var(--text-dim); }
 
-    .btn-row {
-      display: flex; gap: 10px; flex-wrap: wrap;
-      margin-top: 12px;
+    textarea.editor:focus {
+      border-color: var(--border-focus);
+      background: rgba(3, 4, 8, 0.6);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.1), inset 0 0 10px rgba(0,0,0,0.3);
     }
-    .btn {
-      flex: 1 1 0;
-      min-width: 120px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card-2);
-      color: var(--text);
-      font-size: 15px;
+
+    textarea.editor::placeholder {
+      color: var(--text-muted);
+    }
+
+    .char-count {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
       font-weight: 600;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    textarea.editor:focus + .char-count {
+      color: var(--text-dim);
+    }
+
+    /* 按钮组 */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      height: 48px;
+      padding: 0 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: transform 0.05s, background 0.2s, border-color 0.2s;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
       user-select: none;
+      outline: none;
     }
-    .btn:hover { background: #2c3866; }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn.primary {
-      background: linear-gradient(135deg, var(--primary), #8b5cf6);
-      border-color: transparent;
-      color: white;
-      box-shadow: 0 6px 16px rgba(99,102,241,0.35);
-    }
-    .btn.primary:hover { filter: brightness(1.08); background: linear-gradient(135deg, var(--primary), #8b5cf6); }
-    .btn.danger { color: #fca5a5; }
-    .btn.ghost { background: transparent; }
-    .btn svg { width: 18px; height: 18px; }
 
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none !important;
+      background: rgba(255, 255, 255, 0.01) !important;
+      border-color: var(--border) !important;
+    }
+
+    /* 主操作按钮 (发送、复制) */
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      border: none;
+      color: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn.primary:hover {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #8b5cf6 100%);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5), 0 0 10px rgba(168, 85, 247, 0.2);
+    }
+
+    .btn.danger {
+      color: var(--danger);
+      border-color: rgba(244, 63, 94, 0.15);
+      background: var(--danger-bg);
+    }
+
+    .btn.danger:hover {
+      background: rgba(244, 63, 94, 0.18);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-dim);
+      flex: 0;
+      min-width: 60px;
+    }
+
+    .btn.ghost:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s;
+    }
+
+    .btn:hover svg {
+      transform: scale(1.1);
+    }
+
+    /* 历史记录 */
     .history {
-      display: flex; flex-direction: column; gap: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
     }
+
     .history-item {
-      background: var(--bg-2);
+      background: rgba(3, 4, 8, 0.25);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
       position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .history-item:hover { background: #1a234a; border-color: #3a4680; }
+
+    .history-item:hover {
+      background: rgba(99, 102, 241, 0.05);
+      border-color: var(--border-hover);
+      transform: scale(1.01);
+    }
+
     .history-item .text {
+      font-size: 14px;
+      line-height: 1.6;
       white-space: pre-wrap;
       word-break: break-word;
-      max-height: 80px;
+      max-height: 96px;
       overflow: hidden;
-      line-height: 1.5;
+      color: var(--text);
     }
+
     .history-item .text.long::after {
       content: '';
       position: absolute;
-      left: 0; right: 0; bottom: 28px;
-      height: 24px;
-      background: linear-gradient(transparent, var(--bg-2));
+      left: 0; right: 0; bottom: 32px;
+      height: 30px;
+      background: linear-gradient(transparent, rgba(15, 18, 36, 0.95));
       pointer-events: none;
-    }
-    .history-item .time {
-      margin-top: 6px;
-      font-size: 11px;
-      color: var(--text-dim);
-      display: flex; gap: 6px; align-items: center;
-    }
-    .history-empty {
-      text-align: center;
-      color: var(--text-dim);
-      padding: 14px;
-      font-size: 13px;
     }
 
+    .history-item .time {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .history-item .device-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.02);
+      color: var(--text-dim);
+    }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 30px 14px;
+      font-size: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+    }
+
+    /* Toast 弹出提示 */
     .toast-wrap {
       position: fixed;
-      left: 0; right: 0; bottom: 24px;
-      display: flex; justify-content: center;
+      left: 50%;
+      bottom: 40px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       pointer-events: none;
-      z-index: 999;
+      z-index: 9999;
     }
+
     .toast {
-      background: rgba(20, 26, 56, 0.95);
+      background: rgba(13, 16, 32, 0.85);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 10px 18px;
+      padding: 12px 24px;
       border-radius: 999px;
       font-size: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      backdrop-filter: blur(10px);
-      animation: toast-in 0.25s ease;
-      max-width: 90%;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg), 0 10px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      animation: toast-slide-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-width: 90vw;
       pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .toast.success { border-color: rgba(16,185,129,0.5); }
-    .toast.error { border-color: rgba(239,68,68,0.5); }
-    @keyframes toast-in {
-      from { transform: translateY(20px); opacity: 0; }
+
+    .toast.success {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.1);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
+    }
+
+    .toast.error {
+      border-color: rgba(244, 63, 94, 0.3);
+      background: rgba(244, 63, 94, 0.1);
+      box-shadow: 0 10px 30px rgba(244, 63, 94, 0.1);
+    }
+
+    @keyframes toast-slide-in {
+      from { transform: translateY(30px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     footer {
       text-align: center;
-      color: var(--text-dim);
+      color: var(--text-muted);
       font-size: 12px;
-      margin-top: 24px;
+      padding: 10px 0;
+      font-weight: 500;
     }
-    footer a { color: var(--primary-2); text-decoration: none; }
 
-    /* 大屏更宽松 */
-    @media (min-width: 720px) {
-      .wrap { padding: 24px 24px 80px; }
-      header { padding: 12px 4px 20px; }
-      .logo { font-size: 20px; }
-      .card { padding: 20px; }
+    footer a {
+      color: var(--primary-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--text);
     }
   </style>
 </head>
@@ -289,64 +600,78 @@
         <div class="logo-mark">传</div>
         <span>文字传</span>
       </div>
-      <div class="status" id="status">
+      <div class="status" id="status" title="正在与云端服务器进行实时通信">
         <span class="dot loading" id="status-dot"></span>
         <span id="status-text">连接中…</span>
       </div>
     </header>
 
-    <!-- 接收区 -->
-    <section class="card">
-      <h3 class="card-title">
-        <span>📥 收到的文字</span>
-        <span class="meta" id="received-time"></span>
-      </h3>
-      <div id="received-text" class="received-text empty">等待消息…</div>
-      <div class="btn-row">
-        <button class="btn primary" id="btn-copy" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          一键复制
-        </button>
-        <button class="btn" id="btn-refresh">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          刷新
-        </button>
-      </div>
-    </section>
+    <div class="grid">
+      <!-- 接收区 -->
+      <section class="card">
+        <h3 class="card-title">
+          <span class="title-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--primary-light)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            📥 收到的文字
+          </span>
+          <span class="meta" id="received-time"></span>
+        </h3>
+        <div id="received-text" class="received-text empty">等待消息…</div>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-copy" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            一键复制
+          </button>
+          <button class="btn" id="btn-refresh" title="强制刷新拉取最新数据">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            刷新
+          </button>
+        </div>
+      </section>
 
-    <!-- 发送区 -->
-    <section class="card">
-      <h3 class="card-title">
-        <span>📤 发送文字</span>
-        <span class="meta">Ctrl/⌘ + Enter 发送</span>
-      </h3>
-      <textarea id="editor" class="editor" placeholder="在这里输入,或点下面「粘贴并发送」…"></textarea>
-      <div class="btn-row">
-        <button class="btn primary" id="btn-send">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          发送
-        </button>
-        <button class="btn" id="btn-paste-send">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-          粘贴并发送
-        </button>
-        <button class="btn ghost" id="btn-clear-editor">清空</button>
-      </div>
-    </section>
+      <!-- 发送区 -->
+      <section class="card">
+        <h3 class="card-title">
+          <span class="title-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--accent)"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            📤 发送文字
+          </span>
+          <span class="meta" style="font-size:11px;">Ctrl + Enter 发送</span>
+        </h3>
+        <div class="editor-wrapper">
+          <textarea id="editor" class="editor" placeholder="在这里输入文字,或点击下方直接粘贴并发送..." maxlength="20000"></textarea>
+          <span class="char-count" id="char-count">0 / 20k</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            发送
+          </button>
+          <button class="btn" id="btn-paste-send" title="读取剪贴板文字并直接发送">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            粘贴发送
+          </button>
+          <button class="btn ghost" id="btn-clear-editor" title="清空输入框">清空</button>
+        </div>
+      </section>
 
-    <!-- 历史 -->
-    <section class="card">
-      <h3 class="card-title">
-        <span>🕒 历史记录</span>
-        <button class="btn ghost danger" id="btn-clear-history" style="padding:4px 10px;font-size:12px;flex:none;min-width:auto;">清空</button>
-      </h3>
-      <div class="history" id="history">
-        <div class="history-empty">暂无历史</div>
-      </div>
-    </section>
+      <!-- 历史 -->
+      <section class="card span-full">
+        <h3 class="card-title">
+          <span class="title-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text-dim)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            🕒 历史记录
+          </span>
+          <button class="btn ghost danger" id="btn-clear-history" style="padding:6px 12px;font-size:12px;height:32px;flex:none;min-width:auto;">清空历史</button>
+        </h3>
+        <div class="history" id="history">
+          <div class="history-empty">暂无历史</div>
+        </div>
+      </section>
+    </div>
 
     <footer>
-      <p>开源 · <a href="https://github.com" target="_blank" rel="noopener">GitHub</a></p>
+      <p>极简文字传 · 已装载 PWA 服务 · <a href="https://github.com/linlong5201314/wzc-transfer" target="_blank" rel="noopener">GitHub</a></p>
     </footer>
   </div>
 
@@ -610,13 +935,13 @@
         const time = document.createElement('div');
         time.className = 'time';
         const fromSelf = m.senderId === DEVICE_ID;
-        time.textContent = formatTime(m.timestamp) + (fromSelf ? ' · 本机' : ' · 远端');
+        time.innerHTML = `<span>${formatTime(m.timestamp)}</span> <span class="device-tag">${fromSelf ? '本机' : '远端'}</span>`;
         item.appendChild(text);
         item.appendChild(time);
         item.title = '点击复制';
         item.onclick = async () => {
           const ok = await copyToClipboard(m.text);
-          toast(ok ? '已复制' : '复制失败', ok ? 'success' : 'error');
+          toast(ok ? '已复制到剪贴板' : '复制失败', ok ? 'success' : 'error');
         };
         box.appendChild(item);
       });
@@ -625,10 +950,44 @@
     // ============================================================
     // 事件绑定
     // ============================================================
-    $('#btn-copy').onclick = async () => {
+    const editor = $('#editor');
+    const charCount = $('#char-count');
+    
+    function updateCharCount() {
+      const len = editor.value.length;
+      charCount.textContent = `${len} / 20k`;
+      if (len >= 19000) {
+        charCount.style.color = 'var(--danger)';
+      } else {
+        charCount.style.color = '';
+      }
+    }
+
+    editor.addEventListener('input', updateCharCount);
+
+    $('#received-text').ondblclick = async () => {
       if (!state.latest) return;
       const ok = await copyToClipboard(state.latest.text);
-      toast(ok ? '已复制到剪贴板' : '复制失败', ok ? 'success' : 'error');
+      toast(ok ? '双击复制成功' : '复制失败', ok ? 'success' : 'error');
+    };
+
+    $('#btn-copy').onclick = async () => {
+      if (!state.latest) return;
+      const btn = $('#btn-copy');
+      const originalHTML = btn.innerHTML;
+      const ok = await copyToClipboard(state.latest.text);
+      
+      if (ok) {
+        toast('已复制到剪贴板', 'success');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"><polyline points="20 6 9 17 4 12"/></svg> 已复制`;
+        btn.style.borderColor = 'var(--success)';
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.style.borderColor = '';
+        }, 1500);
+      } else {
+        toast('复制失败', 'error');
+      }
     };
 
     $('#btn-refresh').onclick = async () => {
@@ -641,7 +1000,10 @@
       const ed = $('#editor');
       const text = ed.value;
       const ok = await sendText(text);
-      if (ok) ed.value = '';
+      if (ok) {
+        ed.value = '';
+        updateCharCount();
+      }
     };
 
     $('#btn-paste-send').onclick = async () => {
@@ -656,6 +1018,7 @@
 
     $('#btn-clear-editor').onclick = () => {
       $('#editor').value = '';
+      updateCharCount();
     };
 
     $('#btn-clear-history').onclick = async () => {
