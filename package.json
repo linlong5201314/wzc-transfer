@@ -1,0 +1,17 @@
+{
+  "name": "phone-text-transfer",
+  "version": "1.0.0",
+  "description": "电脑与手机之间一键互传文字 (Vercel + Upstash Redis)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.34.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

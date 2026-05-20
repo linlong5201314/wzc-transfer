@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="description" content="电脑与手机之间一键互传文字" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="文字传" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>文字传 · 电脑手机互传</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-2: #131a33;
+      --card: #1a2244;
+      --card-2: #222c54;
+      --border: #2a3566;
+      --text: #e6ecff;
+      --text-dim: #9aa8d6;
+      --primary: #6366f1;
+      --primary-2: #818cf8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(1200px 600px at 10% -10%, #1d2a5e 0%, transparent 60%),
+                  radial-gradient(900px 500px at 110% 10%, #2a1a5e 0%, transparent 55%),
+                  var(--bg);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 80px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px 16px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.3px;
+    }
+    .logo-mark {
+      width: 32px; height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      display: grid; place-items: center;
+      color: white; font-size: 16px; font-weight: 800;
+      box-shadow: 0 6px 14px rgba(99,102,241,0.4);
+    }
+    .status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-dim);
+      padding: 6px 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--text-dim);
+      transition: background 0.3s;
+    }
+    .dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .dot.offline { background: var(--danger); }
+    .dot.loading { background: var(--warn); animation: pulse 1s infinite; }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .card-title {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .card-title .meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: none;
+      font-weight: 400;
+    }
+
+    .received-text {
+      min-height: 80px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+    .received-text.empty {
+      color: var(--text-dim);
+      font-style: italic;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .received-text.flash {
+      animation: flash 0.6s ease;
+    }
+    @keyframes flash {
+      0% { background: rgba(99,102,241,0.4); }
+      100% { background: var(--bg-2); }
+    }
+
+    textarea.editor {
+      width: 100%;
+      min-height: 120px;
+      max-height: 340px;
+      padding: 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.6;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea.editor:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+    textarea.editor::placeholder { color: var(--text-dim); }
+
+    .btn-row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .btn {
+      flex: 1 1 0;
+      min-width: 120px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.05s, background 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .btn:hover { background: #2c3866; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 6px 16px rgba(99,102,241,0.35);
+    }
+    .btn.primary:hover { filter: brightness(1.08); background: linear-gradient(135deg, var(--primary), #8b5cf6); }
+    .btn.danger { color: #fca5a5; }
+    .btn.ghost { background: transparent; }
+    .btn svg { width: 18px; height: 18px; }
+
+    .history {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .history-item {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .history-item:hover { background: #1a234a; border-color: #3a4680; }
+    .history-item .text {
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 80px;
+      overflow: hidden;
+      line-height: 1.5;
+    }
+    .history-item .text.long::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 28px;
+      height: 24px;
+      background: linear-gradient(transparent, var(--bg-2));
+      pointer-events: none;
+    }
+    .history-item .time {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex; gap: 6px; align-items: center;
+    }
+    .history-empty {
+      text-align: center;
+      color: var(--text-dim);
+      padding: 14px;
+      font-size: 13px;
+    }
+
+    .toast-wrap {
+      position: fixed;
+      left: 0; right: 0; bottom: 24px;
+      display: flex; justify-content: center;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast {
+      background: rgba(20, 26, 56, 0.95);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+      animation: toast-in 0.25s ease;
+      max-width: 90%;
+      pointer-events: auto;
+    }
+    .toast.success { border-color: rgba(16,185,129,0.5); }
+    .toast.error { border-color: rgba(239,68,68,0.5); }
+    @keyframes toast-in {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 12px;
+      margin-top: 24px;
+    }
+    footer a { color: var(--primary-2); text-decoration: none; }
+
+    /* 大屏更宽松 */
+    @media (min-width: 720px) {
+      .wrap { padding: 24px 24px 80px; }
+      header { padding: 12px 4px 20px; }
+      .logo { font-size: 20px; }
+      .card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">
+        <div class="logo-mark">传</div>
+        <span>文字传</span>
+      </div>
+      <div class="status" id="status">
+        <span class="dot loading" id="status-dot"></span>
+        <span id="status-text">连接中…</span>
+      </div>
+    </header>
+
+    <!-- 接收区 -->
+    <section class="card">
+      <h3 class="card-title">
+        <span>📥 收到的文字</span>
+        <span class="meta" id="received-time"></span>
+      </h3>
+      <div id="received-text" class="received-text empty">等待消息…</div>
+      <div class="btn-row">
+        <button class="btn primary" id="btn-copy" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          一键复制
+        </button>
+        <button class="btn" id="btn-refresh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          刷新
+        </button>
+      </div>
+    </section>
+
+    <!-- 发送区 -->
+    <section class="card">
+      <h3 class="card-title">
+        <span>📤 发送文字</span>
+        <span class="meta">Ctrl/⌘ + Enter 发送</span>
+      </h3>
+      <textarea id="editor" class="editor" placeholder="在这里输入,或点下面「粘贴并发送」…"></textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="btn-send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          发送
+        </button>
+        <button class="btn" id="btn-paste-send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+          粘贴并发送
+        </button>
+        <button class="btn ghost" id="btn-clear-editor">清空</button>
+      </div>
+    </section>
+
+    <!-- 历史 -->
+    <section class="card">
+      <h3 class="card-title">
+        <span>🕒 历史记录</span>
+        <button class="btn ghost danger" id="btn-clear-history" style="padding:4px 10px;font-size:12px;flex:none;min-width:auto;">清空</button>
+      </h3>
+      <div class="history" id="history">
+        <div class="history-empty">暂无历史</div>
+      </div>
+    </section>
+
+    <footer>
+      <p>开源 · <a href="https://github.com" target="_blank" rel="noopener">GitHub</a></p>
+    </footer>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <script>
+    // ============================================================
+    // 工具函数
+    // ============================================================
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    function toast(msg, type = '') {
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.textContent = msg;
+      $('#toast-wrap').appendChild(el);
+      setTimeout(() => {
+        el.style.transition = 'opacity 0.3s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+      }, 1800);
+    }
+
+    function formatTime(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 60_000) return '刚刚';
+      if (diff < 3600_000) return Math.floor(diff / 60_000) + ' 分钟前';
+      const sameDay = d.toDateString() === now.toDateString();
+      const hm = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+      if (sameDay) return hm;
+      return (d.getMonth()+1) + '/' + d.getDate() + ' ' + hm;
+    }
+
+    function deviceLabel() {
+      const ua = navigator.userAgent;
+      if (/Android/i.test(ua)) return '📱 安卓';
+      if (/iPhone|iPad|iPod/i.test(ua)) return '📱 iOS';
+      if (/Windows/i.test(ua)) return '💻 Windows';
+      if (/Mac/i.test(ua)) return '💻 Mac';
+      return '💻 电脑';
+    }
+
+    // 生成稳定的设备 ID
+    function getDeviceId() {
+      let id = localStorage.getItem('deviceId');
+      if (!id) {
+        id = 'd_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36);
+        localStorage.setItem('deviceId', id);
+      }
+      return id;
+    }
+
+    const DEVICE_ID = getDeviceId();
+    const DEVICE_LABEL = deviceLabel();
+
+    // ============================================================
+    // 状态管理
+    // ============================================================
+    const state = {
+      lastTimestamp: 0,
+      latest: null,
+      online: false,
+      polling: null,
+      pollInterval: 2500, // 可见时 2.5 秒
+      sleepInterval: 30_000, // 隐藏时 30 秒
+    };
+
+    function setStatus(kind, text) {
+      const dot = $('#status-dot');
+      dot.className = 'dot ' + kind;
+      $('#status-text').textContent = text;
+    }
+
+    // ============================================================
+    // API 调用
+    // ============================================================
+    async function apiGet(path) {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok) {
+        let msg = 'HTTP ' + res.status;
+        try { const j = await res.json(); if (j.error) msg = j.error; } catch {}
+        throw new Error(msg);
+      }
+      return res.json();
+    }
+
+    // ============================================================
+    // 接收 & 渲染
+    // ============================================================
+    function renderReceived(msg) {
+      const box = $('#received-text');
+      const timeEl = $('#received-time');
+      const btnCopy = $('#btn-copy');
+
+      if (!msg || !msg.text) {
+        box.className = 'received-text empty';
+        box.textContent = '等待消息…';
+        timeEl.textContent = '';
+        btnCopy.disabled = true;
+        return;
+      }
+
+      const isNew = msg.timestamp > state.lastTimestamp;
+      box.className = 'received-text' + (isNew ? ' flash' : '');
+      box.textContent = msg.text;
+      const fromSelf = msg.senderId === DEVICE_ID;
+      timeEl.textContent = formatTime(msg.timestamp) + (fromSelf ? ' · 来自本机' : '');
+      btnCopy.disabled = false;
+      state.latest = msg;
+      if (isNew) state.lastTimestamp = msg.timestamp;
+    }
+
+    async function pollLatest() {
+      try {
+        const url = state.lastTimestamp
+          ? '/api/latest?since=' + state.lastTimestamp
+          : '/api/latest';
+        const data = await apiGet(url);
+        if (data.message) {
+          renderReceived(data.message);
+        } else if (!state.latest) {
+          // 初始也没消息
+          renderReceived(null);
+        }
+        if (!state.online) {
+          state.online = true;
+          setStatus('online', '已连接');
+        }
+      } catch (err) {
+        state.online = false;
+        setStatus('offline', '连接失败');
+        console.warn('poll failed:', err);
+      }
+    }
+
+    function startPolling() {
+      stopPolling();
+      const tick = async () => {
+        await pollLatest();
+        const interval = document.hidden ? state.sleepInterval : state.pollInterval;
+        state.polling = setTimeout(tick, interval);
+      };
+      tick();
+    }
+    function stopPolling() {
+      if (state.polling) { clearTimeout(state.polling); state.polling = null; }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        // 切回来立即拉一次
+        stopPolling();
+        startPolling();
+      }
+    });
+
+    // ============================================================
+    // 发送
+    // ============================================================
+    async function sendText(text) {
+      if (!text || !text.trim()) {
+        toast('内容不能为空', 'error');
+        return false;
+      }
+      const btnSend = $('#btn-send');
+      const btnPaste = $('#btn-paste-send');
+      btnSend.disabled = true;
+      btnPaste.disabled = true;
+      try {
+        const data = await apiPost('/api/send', { text, senderId: DEVICE_ID });
+        if (data.message) renderReceived(data.message);
+        loadHistory();
+        toast('已发送', 'success');
+        return true;
+      } catch (err) {
+        toast('发送失败: ' + err.message, 'error');
+        return false;
+      } finally {
+        btnSend.disabled = false;
+        btnPaste.disabled = false;
+      }
+    }
+
+    // ============================================================
+    // 剪贴板
+    // ============================================================
+    async function copyToClipboard(text) {
+      if (!text) return false;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+        // 后备方案
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) {
+        console.warn('copy failed:', e);
+        return false;
+      }
+    }
+
+    async function readFromClipboard() {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText && window.isSecureContext) {
+          return await navigator.clipboard.readText();
+        }
+        throw new Error('当前浏览器不支持读取剪贴板,请在文本框中手动粘贴');
+      } catch (e) {
+        throw e;
+      }
+    }
+
+    // ============================================================
+    // 历史
+    // ============================================================
+    async function loadHistory() {
+      try {
+        const data = await apiGet('/api/history');
+        renderHistory(data.messages || []);
+      } catch (err) {
+        console.warn('history failed:', err);
+      }
+    }
+
+    function renderHistory(messages) {
+      const box = $('#history');
+      if (!messages.length) {
+        box.innerHTML = '<div class="history-empty">暂无历史</div>';
+        return;
+      }
+      box.innerHTML = '';
+      messages.forEach(m => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const text = document.createElement('div');
+        text.className = 'text';
+        text.textContent = m.text;
+        if (m.text.length > 200) text.classList.add('long');
+        const time = document.createElement('div');
+        time.className = 'time';
+        const fromSelf = m.senderId === DEVICE_ID;
+        time.textContent = formatTime(m.timestamp) + (fromSelf ? ' · 本机' : ' · 远端');
+        item.appendChild(text);
+        item.appendChild(time);
+        item.title = '点击复制';
+        item.onclick = async () => {
+          const ok = await copyToClipboard(m.text);
+          toast(ok ? '已复制' : '复制失败', ok ? 'success' : 'error');
+        };
+        box.appendChild(item);
+      });
+    }
+
+    // ============================================================
+    // 事件绑定
+    // ============================================================
+    $('#btn-copy').onclick = async () => {
+      if (!state.latest) return;
+      const ok = await copyToClipboard(state.latest.text);
+      toast(ok ? '已复制到剪贴板' : '复制失败', ok ? 'success' : 'error');
+    };
+
+    $('#btn-refresh').onclick = async () => {
+      setStatus('loading', '刷新中…');
+      await pollLatest();
+      await loadHistory();
+    };
+
+    $('#btn-send').onclick = async () => {
+      const ed = $('#editor');
+      const text = ed.value;
+      const ok = await sendText(text);
+      if (ok) ed.value = '';
+    };
+
+    $('#btn-paste-send').onclick = async () => {
+      try {
+        const text = await readFromClipboard();
+        if (!text) { toast('剪贴板为空', 'error'); return; }
+        await sendText(text);
+      } catch (e) {
+        toast(e.message || '读取剪贴板失败', 'error');
+      }
+    };
+
+    $('#btn-clear-editor').onclick = () => {
+      $('#editor').value = '';
+    };
+
+    $('#btn-clear-history').onclick = async () => {
+      if (!confirm('确定清空所有消息和历史?(双方设备都会清空)')) return;
+      try {
+        await apiPost('/api/clear');
+        state.lastTimestamp = 0;
+        state.latest = null;
+        renderReceived(null);
+        renderHistory([]);
+        toast('已清空', 'success');
+      } catch (e) {
+        toast('清空失败: ' + e.message, 'error');
+      }
+    };
+
+    // Ctrl/Cmd + Enter 发送
+    $('#editor').addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        $('#btn-send').click();
+      }
+    });
+
+    // ============================================================
+    // 启动
+    // ============================================================
+    setStatus('loading', '连接中…');
+    startPolling();
+    loadHistory();
+
+    // 注册 Service Worker (PWA 离线缓存)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW reg failed', err));
+      });
+    }
+  </script>
+</body>
+</html>
