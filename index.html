@@ -848,14 +848,30 @@
 
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <div class="photo-credit" id="photo-credit">📷 实时轮播 · Photos by Picsum</div>
+  <div class="photo-credit" id="photo-credit">📷 实时轮播 · 多源高清风景</div>
 
   <script>
     // ============================================================
-    // 背景照片轮播：120+ 张丝滑模糊互切
+    // 背景照片轮播：120+ 张丝滑模糊互切（多源容灾）
     // ============================================================
     (function () {
-      const CONFIG = { count: 120, w: 1920, h: 1080, showMs: 9000 };
+      const CONFIG = {
+        count: 120,
+        showMs: 7000,        // ⏱ 单张展示时长(7 秒)
+        sourceTimeoutMs: 4500 // 单源加载超时,超时后换下一源
+      };
+
+      // 多个图源 - 按可用性从优到劣排列
+      // 每个函数接收一个唯一种子 seed,返回一张图的 URL
+      const SOURCES = [
+        // 国内 CDN: 高清风景照片(几千张池),China-friendly
+        (seed) => `https://t.alcy.cc/fj/?_=${seed}`,
+        // 国内 CDN: Bing 必应每日壁纸(每张种子返回当时收录的一张)
+        (seed) => `https://api.dujin.org/bing/1920.php?_=${seed}`,
+        // 国际 CDN: Picsum 兜底(国内不稳)
+        (seed) => `https://picsum.photos/seed/wzc${seed}/1920/1080`
+      ];
+
       const layers = [
         document.getElementById('bg-1'),
         document.getElementById('bg-2')
@@ -869,21 +885,31 @@
         [order[i], order[j]] = [order[j], order[i]];
       }
 
-      const photoUrl = (seed) =>
-        `https://picsum.photos/seed/wzc${seed}/${CONFIG.w}/${CONFIG.h}`;
-
-      function preload(url) {
+      // 加载单张图,带超时控制
+      function preloadOne(url) {
         return new Promise((resolve) => {
           const img = new Image();
-          img.onload = () => resolve(url);
-          img.onerror = () => resolve(null); // 加载失败跳过
+          let done = false;
+          const finish = (val) => { if (!done) { done = true; resolve(val); } };
+          img.onload = () => finish(url);
+          img.onerror = () => finish(null);
           img.src = url;
+          setTimeout(() => finish(null), CONFIG.sourceTimeoutMs);
         });
+      }
+
+      // 依次尝试多个图源,直到一个成功
+      async function loadPhoto(seed) {
+        for (const src of SOURCES) {
+          const url = await preloadOne(src(seed));
+          if (url) return url;
+        }
+        return null;
       }
 
       async function swap() {
         const nextSeed = order[(idx + 1) % order.length];
-        const url = await preload(photoUrl(nextSeed));
+        const url = await loadPhoto(nextSeed);
         if (!url) { idx = (idx + 1) % order.length; return; }
 
         const next = (active + 1) % 2;
@@ -896,16 +922,16 @@
         idx = (idx + 1) % order.length;
 
         // 提前预加载下一张以保证丝滑过渡
-        preload(photoUrl(order[(idx + 1) % order.length]));
+        loadPhoto(order[(idx + 1) % order.length]);
       }
 
       async function init() {
-        const url = await preload(photoUrl(order[0]));
+        const url = await loadPhoto(order[0]);
         if (url) {
           layers[0].style.backgroundImage = `url("${url}")`;
           layers[0].classList.add('active');
         }
-        preload(photoUrl(order[1]));   // 预加载第二张
+        loadPhoto(order[1]); // 预加载第二张
         setInterval(swap, CONFIG.showMs);
       }
 
