@@ -1,5 +1,5 @@
 // 文字传 Service Worker
-const CACHE = 'wzc-v1';
+const CACHE = 'wzc-v2-glass';
 const PRECACHE = [
   '/',
   '/index.html',
