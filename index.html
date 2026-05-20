@@ -235,6 +235,14 @@
       animation: shine 3.5s ease-in-out infinite;
     }
 
+    .logo-mark svg.plane {
+      width: 60%;
+      height: 60%;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+      position: relative;
+      z-index: 1;
+    }
+
     @keyframes shine {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
@@ -762,7 +770,12 @@
   <div class="wrap">
     <header>
       <div class="logo">
-        <div class="logo-mark">传</div>
+        <div class="logo-mark">
+          <svg class="plane" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="0.4" stroke-linejoin="round">
+            <polygon points="22,2 15,22 11,13 2,9"/>
+            <line x1="22" y1="2" x2="11" y2="13" stroke="#a855f7" stroke-opacity="0.45" stroke-width="0.6" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
         <span class="logo-text">文字传</span>
       </div>
       <div class="status" id="status" title="正在与云端服务器进行实时通信">
