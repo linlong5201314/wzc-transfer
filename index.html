@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0a14" />
+  <meta name="theme-color" content="#000000" />
   <meta name="description" content="电脑与手机之间一键互传文字" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -15,36 +15,50 @@
   <title>文字传 · 电脑手机互传</title>
   <style>
     :root {
-      /* === 五彩霓虹主色 === */
-      --bg-base: #0a0a14;
-      --primary-1: #ec4899;     /* 玫粉 */
-      --primary-2: #a855f7;     /* 紫罗兰 */
-      --primary-3: #6366f1;     /* 靛蓝 */
-      --primary-4: #06b6d4;     /* 青色 */
-      --primary-5: #22d3ee;     /* 水绿 */
-      --success: #10b981;
-      --danger: #f43f5e;
+      /* === Apple-inspired premium palette === */
+      --bg-base: #000000;
+      --bg-elevated: #1c1c1e;
+      --bg-elevated-2: #2c2c2e;
 
-      /* === 玻璃材质 === */
-      --glass-bg: rgba(15, 23, 42, 0.42);
-      --glass-bg-strong: rgba(20, 30, 60, 0.58);
-      --glass-border: rgba(255, 255, 255, 0.13);
-      --glass-border-bright: rgba(255, 255, 255, 0.24);
+      /* iOS System Blue (signature accent) */
+      --accent: #0a84ff;
+      --accent-light: #5ac8fa;
+      --accent-darker: #0071e3;
+      --accent-glow: rgba(10, 132, 255, 0.4);
 
-      /* === 文字层级 === */
-      --text: #f8fafc;
-      --text-soft: #cbd5e1;
-      --text-dim: #94a3b8;
-      --text-muted: #64748b;
+      /* iOS System Colors */
+      --success: #30d158;
+      --danger: #ff453a;
+      --warning: #ff9f0a;
+      --indigo: #7d7aff;
 
-      /* === 圆角 === */
+      /* Glass materials — refined macOS-style vibrancy */
+      --glass-bg: rgba(28, 28, 30, 0.58);
+      --glass-bg-strong: rgba(44, 44, 46, 0.76);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-bright: rgba(255, 255, 255, 0.16);
+
+      /* Text — Apple system gray levels */
+      --text: #f5f5f7;
+      --text-soft: rgba(235, 235, 245, 0.85);
+      --text-secondary: rgba(235, 235, 245, 0.62);
+      --text-tertiary: rgba(235, 235, 245, 0.35);
+      --text-quaternary: rgba(235, 235, 245, 0.18);
+
+      /* Corner radius — iOS continuous-curve language */
+      --r-xs: 8px;
       --r-sm: 12px;
-      --r-md: 18px;
-      --r-lg: 28px;
-      --r-pill: 999px;
+      --r-md: 16px;
+      --r-lg: 22px;
+      --r-xl: 28px;
+      --r-pill: 980px;
 
-      --shadow-card: 0 20px 50px -10px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --shadow-card: 0 12px 40px -8px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+      --shadow-button: 0 4px 16px -3px rgba(10, 132, 255, 0.5);
+
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -55,6 +69,9 @@
       color: var(--text);
       font-family: var(--font);
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     body {
@@ -63,24 +80,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      letter-spacing: -0.01em;
       font-feature-settings: "ss01", "cv01", "cv11";
     }
 
-    /* ========= 背景照片轮播 ========= */
+    /* ========= 背景照片轮播（沉稳低调） ========= */
     .bg-stage {
       position: fixed;
       inset: 0;
       z-index: -3;
       overflow: hidden;
-      /* 兜底动态渐变(图片未加载时仍然好看) */
-      background: linear-gradient(135deg, #1e1b4b, #312e81 25%, #1e3a8a 50%, #831843 75%, #831843);
-      background-size: 400% 400%;
-      animation: gradient-bg 35s ease infinite;
-    }
-
-    @keyframes gradient-bg {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+      /* 默认沉稳渐变（图片未加载时仍然好看） */
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(10, 132, 255, 0.10), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(90, 200, 250, 0.05), transparent 60%),
+        linear-gradient(180deg, #000 0%, #0a0a0a 100%);
     }
 
     .bg-layer {
@@ -88,83 +102,74 @@
       inset: 0;
       background-size: cover;
       background-position: center;
-      filter: blur(38px) saturate(1.4) brightness(0.55);
+      filter: blur(56px) saturate(105%) brightness(0.4);
       opacity: 0;
-      transform: scale(1.18);
-      transition: opacity 2.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(1.2);
+      transition: opacity 2.8s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: opacity, transform;
     }
 
     .bg-layer.active {
-      opacity: 1;
-      animation: ken-burns 16s ease-in-out infinite alternate;
+      opacity: 0.78;
+      animation: ken-burns 22s ease-in-out infinite alternate;
     }
 
     @keyframes ken-burns {
-      0%   { transform: scale(1.18) translate(0, 0); }
-      100% { transform: scale(1.30) translate(-3%, -2%); }
+      0%   { transform: scale(1.20) translate(0, 0); }
+      100% { transform: scale(1.32) translate(-3%, -2%); }
     }
 
-    /* ========= 漂浮极光球 ========= */
+    /* ========= 极简单色辉光 ========= */
     .orb {
       position: fixed;
       border-radius: 50%;
-      filter: blur(70px);
-      opacity: 0.42;
-      z-index: -2;
       pointer-events: none;
+      z-index: -2;
       will-change: transform;
       mix-blend-mode: screen;
     }
 
     .orb-1 {
-      width: 480px; height: 480px;
-      background: radial-gradient(circle, var(--primary-1), transparent 65%);
-      top: -8%; left: -8%;
-      animation: drift-1 22s ease-in-out infinite;
+      width: 720px; height: 720px;
+      background: radial-gradient(circle, rgba(10, 132, 255, 0.22), transparent 65%);
+      filter: blur(80px);
+      top: -20%; left: -12%;
+      animation: drift-1 28s ease-in-out infinite;
     }
     .orb-2 {
-      width: 540px; height: 540px;
-      background: radial-gradient(circle, var(--primary-3), transparent 65%);
-      bottom: -10%; right: -8%;
-      animation: drift-2 26s ease-in-out infinite;
+      width: 560px; height: 560px;
+      background: radial-gradient(circle, rgba(90, 200, 250, 0.14), transparent 65%);
+      filter: blur(70px);
+      bottom: -15%; right: -10%;
+      animation: drift-2 32s ease-in-out infinite;
     }
-    .orb-3 {
-      width: 380px; height: 380px;
-      background: radial-gradient(circle, var(--primary-4), transparent 65%);
-      top: 50%; left: 50%;
-      animation: drift-3 30s ease-in-out infinite;
-    }
+    .orb-3 { display: none; }
 
     @keyframes drift-1 {
       0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(120px, 80px) scale(1.15); }
+      50% { transform: translate(80px, 60px) scale(1.08); }
     }
     @keyframes drift-2 {
       0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(-100px, -60px) scale(1.1); }
-    }
-    @keyframes drift-3 {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-30%, -65%) scale(1.2); }
+      50% { transform: translate(-60px, -40px) scale(1.06); }
     }
 
-    /* 暗角叠层增强可读性 */
+    /* 暗角叠层 */
     .bg-overlay {
       position: fixed;
       inset: 0;
       z-index: -1;
       pointer-events: none;
       background:
-        radial-gradient(ellipse at center, transparent 0%, rgba(7, 9, 19, 0.55) 100%),
-        linear-gradient(180deg, transparent 50%, rgba(7, 9, 19, 0.4) 100%);
+        radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.5) 100%),
+        linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
     }
 
     /* ========= 主布局 ========= */
     .wrap {
       width: 100%;
-      max-width: 880px;
-      padding: 24px 20px 100px;
+      max-width: 900px;
+      padding: 28px 22px 110px;
       display: flex;
       flex-direction: column;
       gap: 22px;
@@ -177,132 +182,120 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 18px;
+      padding: 13px 16px 13px 18px;
       background: var(--glass-bg);
-      backdrop-filter: blur(28px) saturate(180%);
-      -webkit-backdrop-filter: blur(28px) saturate(180%);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--r-md);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 0.5px solid var(--glass-border);
+      border-radius: var(--r-lg);
       box-shadow: var(--shadow-card);
-      animation: fade-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation: fade-down 0.7s var(--ease-out) backwards;
     }
 
     @keyframes fade-down {
-      from { opacity: 0; transform: translateY(-15px); }
+      from { opacity: 0; transform: translateY(-12px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fade-up {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 14px;
-      font-weight: 700;
-      font-size: 22px;
-      letter-spacing: -0.5px;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 19px;
+      letter-spacing: -0.02em;
     }
 
     .logo-mark {
-      width: 42px; height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary-1) 0%, var(--primary-2) 50%, var(--primary-3) 100%);
-      background-size: 200% 200%;
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      background: linear-gradient(160deg, #5ac8fa 0%, #0a84ff 60%, #0071e3 100%);
       display: grid; place-items: center;
       color: #fff;
-      font-size: 20px;
-      font-weight: 900;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 8px 25px -5px rgba(168, 85, 247, 0.5), inset 0 0 0 1px rgba(255,255,255,0.15);
-      animation: gradient-shift 6s ease-in-out infinite;
+      box-shadow:
+        0 6px 20px -4px rgba(10, 132, 255, 0.5),
+        inset 0 0.5px 0 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.12);
     }
 
-    @keyframes gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .logo-mark::before {
+    .logo-mark::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
-      background-size: 200% 200%;
-      animation: shine 3.5s ease-in-out infinite;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent);
+      pointer-events: none;
     }
 
     .logo-mark svg.plane {
-      width: 60%;
-      height: 60%;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+      width: 54%;
+      height: 54%;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
       position: relative;
       z-index: 1;
     }
 
-    @keyframes shine {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
     .logo-text {
-      background: linear-gradient(135deg, #fff 30%, #cbd5e1 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text);
+      font-weight: 600;
     }
 
     .status {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 8px;
       font-size: 13px;
-      font-weight: 600;
-      color: var(--text-soft);
-      padding: 8px 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 7px 14px 7px 12px;
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--glass-border);
+      border: 0.5px solid var(--glass-border);
       border-radius: var(--r-pill);
-      transition: all 0.3s;
+      transition: all 0.25s var(--ease-out);
+      letter-spacing: -0.01em;
     }
 
     .status:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.09);
       border-color: var(--glass-border-bright);
     }
 
     .dot {
-      width: 8px; height: 8px;
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--text-muted);
-      transition: all 0.4s;
+      background: var(--text-tertiary);
+      transition: all 0.3s var(--ease-out);
     }
 
     .dot.online {
       background: var(--success);
-      box-shadow: 0 0 0 3px rgba(16,185,129,0.2), 0 0 16px var(--success);
-      animation: dot-pulse 2.5s ease-in-out infinite;
+      box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.18), 0 0 12px rgba(48, 209, 88, 0.5);
+      animation: dot-pulse 2.4s ease-in-out infinite;
     }
     .dot.offline {
       background: var(--danger);
-      box-shadow: 0 0 12px var(--danger);
+      box-shadow: 0 0 8px rgba(255, 69, 58, 0.6);
     }
     .dot.loading {
-      background: var(--primary-3);
+      background: var(--accent);
       animation: dot-loading 1.2s ease-in-out infinite;
     }
 
     @keyframes dot-pulse {
-      0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.2), 0 0 16px var(--success); }
-      50% { box-shadow: 0 0 0 6px rgba(16,185,129,0.05), 0 0 24px var(--success); }
+      0%, 100% { box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.18), 0 0 12px rgba(48, 209, 88, 0.5); }
+      50%      { box-shadow: 0 0 0 6px rgba(48, 209, 88, 0.05), 0 0 18px rgba(48, 209, 88, 0.6); }
     }
 
     @keyframes dot-loading {
-      0%, 100% { transform: scale(0.85); opacity: 0.7; }
-      50% { transform: scale(1.25); opacity: 1; }
+      0%, 100% { transform: scale(0.85); opacity: 0.6; }
+      50%      { transform: scale(1.2); opacity: 1; }
     }
 
     /* ========= 网格布局 ========= */
@@ -320,18 +313,18 @@
     /* ========= 玻璃卡片 ========= */
     .card {
       background: var(--glass-bg);
-      backdrop-filter: blur(32px) saturate(160%);
-      -webkit-backdrop-filter: blur(32px) saturate(160%);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--r-lg);
-      padding: 26px;
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 0.5px solid var(--glass-border);
+      border-radius: var(--r-xl);
+      padding: 24px;
       box-shadow: var(--shadow-card);
       position: relative;
       display: flex;
       flex-direction: column;
       gap: 18px;
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      transition: all 0.5s var(--ease-out);
+      animation: fade-up 0.8s var(--ease-out) backwards;
       overflow: hidden;
     }
 
@@ -339,30 +332,30 @@
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: var(--r-lg);
-      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 30%);
+      border-radius: var(--r-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 25%);
       pointer-events: none;
     }
 
     .card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-2px);
       background: var(--glass-bg-strong);
       border-color: var(--glass-border-bright);
-      box-shadow: var(--shadow-card), 0 30px 60px -15px rgba(168,85,247,0.3);
+      box-shadow: 0 16px 50px -10px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
     }
 
-    .grid > .card:nth-child(1) { animation-delay: 0.15s; }
-    .grid > .card:nth-child(2) { animation-delay: 0.25s; }
-    .grid > .card:nth-child(3) { animation-delay: 0.35s; }
+    .grid > .card:nth-child(1) { animation-delay: 0.1s; }
+    .grid > .card:nth-child(2) { animation-delay: 0.2s; }
+    .grid > .card:nth-child(3) { animation-delay: 0.3s; }
 
     .card-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text);
-      letter-spacing: 0.2px;
+      letter-spacing: -0.01em;
     }
 
     .card-title .title-text {
@@ -373,19 +366,32 @@
 
     .card-title .title-icon {
       width: 28px; height: 28px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(236,72,153,0.25), rgba(99,102,241,0.25));
-      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      background: rgba(10, 132, 255, 0.16);
+      border: 0.5px solid rgba(10, 132, 255, 0.28);
       display: grid; place-items: center;
-      color: var(--primary-1);
+      color: var(--accent);
     }
-    .card-title .title-icon svg { width: 16px; height: 16px; }
+    .card-title .title-icon svg { width: 15px; height: 15px; }
+
+    .card-title .title-icon.send {
+      background: rgba(90, 200, 250, 0.16);
+      border-color: rgba(90, 200, 250, 0.3);
+      color: var(--accent-light);
+    }
+
+    .card-title .title-icon.time {
+      background: rgba(255, 159, 10, 0.14);
+      border-color: rgba(255, 159, 10, 0.28);
+      color: var(--warning);
+    }
 
     .card-title .meta {
       font-size: 12px;
-      color: var(--text-dim);
+      color: var(--text-tertiary);
       font-weight: 500;
       font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
     }
 
     /* ========= 收到的文字 ========= */
@@ -394,39 +400,40 @@
       max-height: 320px;
       overflow-y: auto;
       padding: 18px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(0, 0, 0, 0.28);
+      border: 0.5px solid rgba(255, 255, 255, 0.06);
       border-radius: var(--r-md);
       font-size: 16px;
-      line-height: 1.7;
+      line-height: 1.65;
       white-space: pre-wrap;
       word-break: break-word;
       color: var(--text);
-      transition: all 0.3s;
+      transition: all 0.3s var(--ease-out);
+      letter-spacing: -0.005em;
     }
 
     .received-text.empty {
-      color: var(--text-muted);
-      font-style: italic;
+      color: var(--text-tertiary);
       display: flex; align-items: center; justify-content: center;
       font-size: 14px;
-      border: 1px dashed rgba(255,255,255,0.08);
-      background: rgba(0,0,0,0.15);
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.18);
+      font-weight: 500;
     }
 
     .received-text.flash {
-      animation: shimmer 1.4s ease-out;
+      animation: shimmer 1.6s ease-out;
     }
 
     @keyframes shimmer {
       0% {
-        background: linear-gradient(135deg, rgba(236,72,153,0.3), rgba(99,102,241,0.3), rgba(6,182,212,0.3));
-        border-color: rgba(168,85,247,0.5);
-        box-shadow: 0 0 0 2px rgba(168,85,247,0.3), 0 0 30px rgba(168,85,247,0.4);
+        background: rgba(10, 132, 255, 0.18);
+        border-color: rgba(10, 132, 255, 0.5);
+        box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.12), 0 0 24px rgba(10, 132, 255, 0.3);
       }
       100% {
-        background: rgba(0,0,0,0.25);
-        border-color: rgba(255,255,255,0.05);
+        background: rgba(0, 0, 0, 0.28);
+        border-color: rgba(255, 255, 255, 0.06);
         box-shadow: none;
       }
     }
@@ -441,41 +448,43 @@
       width: 100%;
       min-height: 130px;
       max-height: 320px;
-      padding: 18px;
-      padding-bottom: 38px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255,255,255,0.05);
+      padding: 18px 18px 38px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 0.5px solid rgba(255, 255, 255, 0.06);
       border-radius: var(--r-md);
       color: var(--text);
       font-size: 16px;
-      line-height: 1.7;
+      line-height: 1.65;
       font-family: inherit;
       resize: vertical;
       outline: none;
-      transition: all 0.3s;
+      transition: all 0.25s var(--ease-out);
+      letter-spacing: -0.005em;
     }
 
     textarea.editor:focus {
-      border-color: rgba(168,85,247,0.5);
-      background: rgba(0, 0, 0, 0.35);
-      box-shadow: 0 0 0 4px rgba(168,85,247,0.12);
+      border-color: rgba(10, 132, 255, 0.5);
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.14);
     }
 
-    textarea.editor::placeholder { color: var(--text-muted); }
+    textarea.editor::placeholder { color: var(--text-tertiary); }
 
     .char-count {
       position: absolute;
-      right: 14px;
-      bottom: 14px;
+      right: 12px;
+      bottom: 12px;
       font-size: 11px;
-      color: var(--text-muted);
-      font-weight: 600;
+      color: var(--text-tertiary);
+      font-weight: 500;
       font-variant-numeric: tabular-nums;
       pointer-events: none;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.45);
       padding: 3px 9px;
       border-radius: var(--r-pill);
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 0.5px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     /* ========= 按钮 ========= */
@@ -487,31 +496,33 @@
 
     .btn {
       flex: 1;
-      height: 50px;
+      height: 48px;
       padding: 0 18px;
       border-radius: var(--r-md);
-      border: 1px solid var(--glass-border);
-      background: rgba(255,255,255,0.04);
+      border: 0.5px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text);
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      gap: 7px;
+      transition: all 0.2s var(--ease-out);
       user-select: none;
       outline: none;
       position: relative;
       overflow: hidden;
+      letter-spacing: -0.01em;
+      font-family: inherit;
     }
 
     .btn::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.18) 0%, transparent 50%);
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.14) 0%, transparent 55%);
       opacity: 0;
       transition: opacity 0.3s;
       pointer-events: none;
@@ -520,131 +531,141 @@
     .btn:hover::after { opacity: 1; }
 
     .btn:hover {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.1);
       border-color: var(--glass-border-bright);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
 
-    .btn:active { transform: translateY(0); }
+    .btn:active { transform: translateY(0) scale(0.985); }
 
     .btn:disabled {
-      opacity: 0.35;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none !important;
     }
 
     .btn.primary {
-      background: linear-gradient(135deg, var(--primary-1) 0%, var(--primary-2) 50%, var(--primary-3) 100%);
-      background-size: 200% 200%;
+      background: linear-gradient(180deg, #4aa8ff 0%, #0a84ff 60%, #0071e3 100%);
       border: none;
-      color: white;
-      box-shadow: 0 8px 25px -5px rgba(168,85,247,0.6), inset 0 0 0 1px rgba(255,255,255,0.1);
-      animation: gradient-shift 5s ease infinite;
+      color: #fff;
+      box-shadow:
+        0 4px 16px -3px rgba(10, 132, 255, 0.5),
+        inset 0 0.5px 0 0 rgba(255, 255, 255, 0.32),
+        inset 0 -1px 0 0 rgba(0, 0, 0, 0.08);
     }
 
     .btn.primary:hover {
-      box-shadow: 0 12px 35px -5px rgba(168,85,247,0.8), 0 0 25px rgba(236,72,153,0.3), inset 0 0 0 1px rgba(255,255,255,0.2);
-      transform: translateY(-3px);
+      transform: translateY(-1px);
+      box-shadow:
+        0 8px 24px -4px rgba(10, 132, 255, 0.6),
+        inset 0 0.5px 0 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 0 rgba(0, 0, 0, 0.08);
+      filter: brightness(1.05);
     }
+
+    .btn.primary:active { filter: brightness(0.95); }
 
     .btn.danger {
       color: var(--danger);
-      background: rgba(244,63,94,0.08);
-      border-color: rgba(244,63,94,0.2);
+      background: rgba(255, 69, 58, 0.1);
+      border-color: rgba(255, 69, 58, 0.22);
     }
     .btn.danger:hover {
-      background: rgba(244,63,94,0.15);
-      border-color: rgba(244,63,94,0.35);
+      background: rgba(255, 69, 58, 0.16);
+      border-color: rgba(255, 69, 58, 0.4);
     }
 
     .btn.ghost {
       background: transparent;
       border-color: transparent;
-      color: var(--text-dim);
+      color: var(--text-secondary);
       flex: 0;
       min-width: 70px;
     }
     .btn.ghost:hover {
       color: var(--text);
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.06);
     }
 
-    .btn svg { width: 18px; height: 18px; transition: transform 0.3s; }
-    .btn:hover svg { transform: scale(1.15) rotate(-5deg); }
+    .btn svg { width: 17px; height: 17px; transition: transform 0.25s var(--ease-out); stroke-width: 2; }
+    .btn:hover svg { transform: scale(1.08); }
 
     /* ========= 历史 ========= */
     .history {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       max-height: 460px;
       overflow-y: auto;
-      padding-right: 6px;
+      padding-right: 4px;
     }
 
     .history-item {
-      background: rgba(0, 0, 0, 0.18);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0, 0, 0, 0.22);
+      border: 0.5px solid rgba(255, 255, 255, 0.06);
       border-radius: var(--r-md);
-      padding: 14px 16px;
+      padding: 13px 16px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.25s var(--ease-out);
       display: flex;
       flex-direction: column;
       gap: 8px;
-      animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation: fade-up 0.5s var(--ease-out) backwards;
       position: relative;
     }
 
     .history-item:hover {
-      background: linear-gradient(135deg, rgba(236,72,153,0.08), rgba(99,102,241,0.08));
-      border-color: rgba(168,85,247,0.3);
-      transform: translateX(3px);
+      background: rgba(10, 132, 255, 0.08);
+      border-color: rgba(10, 132, 255, 0.28);
+      transform: translateX(2px);
     }
 
     .history-item .text {
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.55;
       white-space: pre-wrap;
       word-break: break-word;
       max-height: 96px;
       overflow: hidden;
       color: var(--text-soft);
+      letter-spacing: -0.005em;
     }
 
     .history-item .time {
       font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-weight: 500;
+      color: var(--text-tertiary);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      letter-spacing: 0;
     }
 
     .device-tag {
       font-size: 10px;
       padding: 3px 9px;
       border-radius: var(--r-pill);
-      background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
-      border: 1px solid rgba(168,85,247,0.2);
+      background: rgba(10, 132, 255, 0.14);
+      border: 0.5px solid rgba(10, 132, 255, 0.24);
       color: var(--text-soft);
-      letter-spacing: 0.3px;
+      letter-spacing: 0.04em;
       font-weight: 600;
+      text-transform: uppercase;
     }
 
     .device-tag.remote {
-      background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2));
-      border-color: rgba(6,182,212,0.25);
+      background: rgba(48, 209, 88, 0.14);
+      border-color: rgba(48, 209, 88, 0.24);
     }
 
     .history-empty {
       text-align: center;
-      color: var(--text-muted);
-      padding: 40px 14px;
+      color: var(--text-tertiary);
+      padding: 36px 14px;
       font-size: 14px;
-      border: 1px dashed rgba(255,255,255,0.06);
+      border: 1px dashed rgba(255, 255, 255, 0.06);
       border-radius: var(--r-md);
-      font-style: italic;
+      font-weight: 500;
     }
 
     /* ========= Toast ========= */
@@ -661,74 +682,71 @@
     }
 
     .toast {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid var(--glass-border);
+      background: rgba(28, 28, 30, 0.85);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 0.5px solid var(--glass-border);
       color: var(--text);
-      padding: 14px 28px;
+      padding: 13px 24px;
       border-radius: var(--r-pill);
       font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 20px 60px -15px rgba(0,0,0,0.6);
-      animation: toast-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-weight: 500;
+      box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+      animation: toast-in 0.4s var(--ease-spring);
       max-width: 90vw;
       pointer-events: auto;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      letter-spacing: -0.01em;
     }
 
     .toast.success {
-      border-color: rgba(16,185,129,0.3);
-      background: rgba(16,185,129,0.12);
-      box-shadow: 0 20px 60px -15px rgba(16,185,129,0.3);
+      border-color: rgba(48, 209, 88, 0.32);
+      color: #d6ffe1;
     }
     .toast.error {
-      border-color: rgba(244,63,94,0.3);
-      background: rgba(244,63,94,0.12);
-      box-shadow: 0 20px 60px -15px rgba(244,63,94,0.3);
+      border-color: rgba(255, 69, 58, 0.32);
+      color: #ffdcd9;
     }
 
     @keyframes toast-in {
-      from { transform: translateY(40px) scale(0.9); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
+      from { transform: translateY(28px) scale(0.95); opacity: 0; }
+      to   { transform: translateY(0)    scale(1);    opacity: 1; }
     }
 
     /* ========= 滚动条 ========= */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.12);
       border-radius: var(--r-pill);
       border: 2px solid transparent;
       background-clip: padding-box;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255,255,255,0.22);
+      background: rgba(255, 255, 255, 0.22);
       background-clip: padding-box;
     }
 
     /* ========= Footer ========= */
     footer {
       text-align: center;
-      color: var(--text-muted);
+      color: var(--text-tertiary);
       font-size: 12px;
       padding: 14px 0;
       font-weight: 500;
-      animation: fade-up 1s 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation: fade-up 1s 0.4s var(--ease-out) backwards;
+      letter-spacing: -0.005em;
     }
 
     footer a {
-      color: var(--text-soft);
+      color: var(--accent);
       text-decoration: none;
       transition: color 0.2s;
-      border-bottom: 1px dotted rgba(148,163,184,0.4);
+      font-weight: 600;
     }
-    footer a:hover {
-      color: var(--primary-1);
-      border-bottom-color: var(--primary-1);
-    }
+    footer a:hover { color: var(--accent-light); }
 
     /* 照片署名小标 */
     .photo-credit {
@@ -736,21 +754,25 @@
       bottom: 12px;
       right: 12px;
       font-size: 10px;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.5);
       z-index: 100;
       pointer-events: none;
-      background: rgba(0,0,0,0.35);
-      padding: 5px 12px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 5px 11px;
       border-radius: var(--r-pill);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       font-weight: 500;
-      letter-spacing: 0.3px;
-      border: 1px solid rgba(255,255,255,0.05);
+      letter-spacing: 0.04em;
+      border: 0.5px solid rgba(255, 255, 255, 0.05);
     }
 
     @media (max-width: 640px) {
       .photo-credit { display: none; }
+      .wrap { padding: 22px 16px 100px; gap: 18px; }
+      .card { padding: 20px; border-radius: var(--r-lg); }
+      .logo { font-size: 17px; gap: 10px; }
+      .logo-mark { width: 36px; height: 36px; border-radius: 10px; }
     }
   </style>
 </head>
@@ -770,10 +792,10 @@
   <div class="wrap">
     <header>
       <div class="logo">
-        <div class="logo-mark">
-          <svg class="plane" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="0.4" stroke-linejoin="round">
-            <polygon points="22,2 15,22 11,13 2,9"/>
-            <line x1="22" y1="2" x2="11" y2="13" stroke="#a855f7" stroke-opacity="0.45" stroke-width="0.6" stroke-linecap="round" fill="none"/>
+        <div class="logo-mark" aria-hidden="true">
+          <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2.5 11 13"/>
+            <path d="M21.5 2.5 15 21.5l-4-8.5-8.5-4z" fill="#ffffff" fill-opacity="0.96" stroke-linejoin="round"/>
           </svg>
         </div>
         <span class="logo-text">文字传</span>
@@ -790,7 +812,7 @@
         <h3 class="card-title">
           <span class="title-text">
             <span class="title-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </span>
             收到的文字
           </span>
@@ -799,11 +821,11 @@
         <div id="received-text" class="received-text empty">等待消息…</div>
         <div class="btn-row">
           <button class="btn primary" id="btn-copy" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="3"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             一键复制
           </button>
           <button class="btn" id="btn-refresh" title="强制刷新拉取最新数据">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             刷新
           </button>
         </div>
@@ -813,8 +835,8 @@
       <section class="card">
         <h3 class="card-title">
           <span class="title-text">
-            <span class="title-icon" style="background:linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.25)); color:var(--primary-4)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span class="title-icon send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </span>
             发送文字
           </span>
@@ -826,11 +848,11 @@
         </div>
         <div class="btn-row">
           <button class="btn primary" id="btn-send">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             发送
           </button>
           <button class="btn" id="btn-paste-send" title="读取剪贴板文字并直接发送">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
             粘贴发送
           </button>
           <button class="btn ghost" id="btn-clear-editor" title="清空输入框">清空</button>
@@ -841,12 +863,12 @@
       <section class="card span-full">
         <h3 class="card-title">
           <span class="title-text">
-            <span class="title-icon" style="background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(6,182,212,0.25)); color:var(--primary-2)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="title-icon time">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </span>
             历史记录
           </span>
-          <button class="btn ghost danger" id="btn-clear-history" style="padding:6px 14px;font-size:12px;height:32px;flex:none;min-width:auto;">清空历史</button>
+          <button class="btn ghost danger" id="btn-clear-history" style="padding:0 14px;font-size:12px;height:30px;flex:none;min-width:auto;border-radius:980px;font-weight:600;">清空历史</button>
         </h3>
         <div class="history" id="history">
           <div class="history-empty">暂无历史</div>
@@ -861,7 +883,7 @@
 
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <div class="photo-credit" id="photo-credit">📷 实时轮播 · 多源高清风景</div>
+  <div class="photo-credit" id="photo-credit">高清风景 · 实时轮播</div>
 
   <script>
     // ============================================================
@@ -1263,11 +1285,13 @@
       
       if (ok) {
         toast('已复制到剪贴板', 'success');
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"><polyline points="20 6 9 17 4 12"/></svg> 已复制`;
-        btn.style.borderColor = 'var(--success)';
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已复制`;
+        btn.style.background = 'linear-gradient(180deg, #5cdb7e 0%, #30d158 60%, #25b048 100%)';
+        btn.style.boxShadow = '0 4px 16px -3px rgba(48, 209, 88, 0.5), inset 0 0.5px 0 0 rgba(255,255,255,0.32), inset 0 -1px 0 0 rgba(0,0,0,0.08)';
         setTimeout(() => {
           btn.innerHTML = originalHTML;
-          btn.style.borderColor = '';
+          btn.style.background = '';
+          btn.style.boxShadow = '';
         }, 1500);
       } else {
         toast('复制失败', 'error');

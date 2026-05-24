@@ -1,4 +1,4 @@
-# Generate PWA PNG icons: paper plane on tri-color gradient
+# Generate PWA PNG icons: paper plane on Apple iOS-blue gradient
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\gen-icons.ps1
 Add-Type -AssemblyName System.Drawing
 
@@ -20,36 +20,36 @@ function New-Icon {
     $rectPath.AddArc(0, $Size - $radius * 2, $radius * 2, $radius * 2, 90, 90)
     $rectPath.CloseFigure()
 
-    # tri-color gradient fill
+    # iOS-blue vertical gradient fill (sky blue -> system blue -> deeper blue)
     $rectF = New-Object System.Drawing.Rectangle(0, 0, $Size, $Size)
     $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
         $rectF,
-        [System.Drawing.Color]::FromArgb(236, 72, 153),
-        [System.Drawing.Color]::FromArgb(99, 102, 241),
-        135.0
+        [System.Drawing.Color]::FromArgb(90, 200, 250),
+        [System.Drawing.Color]::FromArgb(0, 88, 196),
+        90.0
     )
     $blend = New-Object System.Drawing.Drawing2D.ColorBlend(3)
     $blend.Colors = @(
-        [System.Drawing.Color]::FromArgb(236, 72, 153),  # ec4899 pink
-        [System.Drawing.Color]::FromArgb(168, 85, 247),  # a855f7 purple
-        [System.Drawing.Color]::FromArgb(99, 102, 241)   # 6366f1 indigo
+        [System.Drawing.Color]::FromArgb(90, 200, 250),  # 5ac8fa iOS sky blue
+        [System.Drawing.Color]::FromArgb(10, 132, 255),  # 0a84ff iOS system blue
+        [System.Drawing.Color]::FromArgb(0, 88, 196)     # 0058c4 deeper blue
     )
-    $blend.Positions = @(0.0, 0.5, 1.0)
+    $blend.Positions = @(0.0, 0.55, 1.0)
     $brush.InterpolationColors = $blend
     $g.FillPath($brush, $rectPath)
 
     # top inner shine
-    $shineRect = New-Object System.Drawing.Rectangle(0, 0, $Size, [int]($Size * 0.47))
+    $shineRect = New-Object System.Drawing.Rectangle(0, 0, $Size, [int]($Size * 0.5))
     $shineBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
         $shineRect,
-        [System.Drawing.Color]::FromArgb(40, 255, 255, 255),
+        [System.Drawing.Color]::FromArgb(56, 255, 255, 255),
         [System.Drawing.Color]::FromArgb(0, 255, 255, 255),
         90.0
     )
     $shinePath = New-Object System.Drawing.Drawing2D.GraphicsPath
     $shinePath.AddArc(0, 0, $radius * 2, $radius * 2, 180, 90)
     $shinePath.AddArc($Size - $radius * 2, 0, $radius * 2, $radius * 2, 270, 90)
-    $shinePath.AddLine($Size, [int]($Size * 0.47), 0, [int]($Size * 0.47))
+    $shinePath.AddLine($Size, [int]($Size * 0.5), 0, [int]($Size * 0.5))
     $shinePath.CloseFigure()
     $g.FillPath($shineBrush, $shinePath)
 
@@ -62,9 +62,9 @@ function New-Icon {
     $points[3] = New-Object System.Drawing.PointF([float](43 * $scale), [float](192 * $scale))
     $g.FillPolygon([System.Drawing.Brushes]::White, $points)
 
-    # fold crease (subtle purple line)
+    # fold crease (subtle blue line, harmonizes with background)
     $foldStroke = [float]([math]::Max(2.0, $Size * 0.012))
-    $foldPen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(90, 168, 85, 247), $foldStroke)
+    $foldPen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(80, 10, 132, 255), $foldStroke)
     $foldPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
     $foldPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
     $g.DrawLine(
