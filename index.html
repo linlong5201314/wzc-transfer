@@ -465,6 +465,59 @@
       background: rgba(255, 69, 58, 0.28);
     }
 
+    .thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .thumb-item {
+      position: relative;
+      border-radius: var(--r-xs);
+      overflow: hidden;
+      aspect-ratio: 1;
+      background: rgba(0, 0, 0, 0.28);
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .thumb-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .thumb-item:hover .thumb-remove { opacity: 1; }
+
+    .thumb-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+      color: var(--text-tertiary);
+      font-size: 13px;
+    }
+
     .grid > .card:nth-child(1) { animation-delay: 0.1s; }
     .grid > .card:nth-child(2) { animation-delay: 0.2s; }
     .grid > .card:nth-child(3) { animation-delay: 0.3s; }
@@ -1028,12 +1081,12 @@
           <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <span class="drop-text">点击选择图片或拖放到这里</span>
           <span class="drop-hint">支持 JPG / PNG / WebP，自动压缩至 1600px</span>
-          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none">
+          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif" multiple style="display:none">
         </div>
-        <div class="image-preview" id="upload-preview" style="display:none"></div>
+        <div class="thumb-grid" id="thumb-grid" style="display:none"></div>
         <div class="image-info" id="upload-info" style="display:none">
-          <span class="img-name" id="upload-filename"></span>
-          <button class="btn-remove" id="btn-remove-image" title="移除图片">&times;</button>
+          <span class="img-name">已选图片</span>
+          <button class="btn-remove" id="btn-remove-image" title="清空列表">&times;</button>
         </div>
         <div class="btn-row">
           <button class="btn primary" id="btn-upload" disabled>
@@ -1555,8 +1608,7 @@
     const imageState = {
       lastTimestamp: 0,
       latest: null,
-      selectedFile: null,
-      compressedDataUrl: null,
+      queue: [], // [{file: File, dataUrl: string}]
     };
 
     // Canvas 压缩图片
@@ -1592,42 +1644,91 @@
       });
     }
 
-    function handleFile(file) {
-      if (!file || !file.type.startsWith('image/')) {
-        toast('请选择图片文件', 'error');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        toast('图片不能超过 10MB', 'error');
-        return;
-      }
+    function validateFile(file) {
+      if (!file || !file.type.startsWith('image/')) return '请选择图片文件';
+      if (file.size > 10 * 1024 * 1024) return '图片 ' + file.name + ' 超过 10MB';
+      return null;
+    }
 
-      imageState.selectedFile = file;
+    async function addToQueue(files) {
+      const valid = [];
+      for (const f of files) {
+        const err = validateFile(f);
+        if (err) { toast(err, 'error'); continue; }
+        valid.push(f);
+      }
+      if (!valid.length) return;
+
+      const total = valid.length;
+      $('#upload-status').textContent = `压缩中 (0/${total})…`;
       $('#btn-upload').disabled = true;
-      $('#upload-status').textContent = '压缩中…';
+      $('#drop-zone').style.display = 'none';
+      renderThumbnails('loading');
 
-      compressImage(file).then(dataUrl => {
-        imageState.compressedDataUrl = dataUrl;
-        $('#upload-preview').style.display = 'flex';
-        $('#upload-preview').innerHTML = `<img src="${dataUrl}" alt="预览">`;
-        $('#drop-zone').style.display = 'none';
-        $('#upload-info').style.display = 'flex';
-        $('#upload-filename').textContent = file.name;
+      let done = 0;
+      const results = await Promise.all(valid.map(file =>
+        compressImage(file).then(dataUrl => {
+          done++;
+          $('#upload-status').textContent = `压缩中 (${done}/${total})…`;
+          return { file, dataUrl };
+        }).catch(err => {
+          toast(`${file.name} 处理失败: ${err.message}`, 'error');
+          return null;
+        })
+      ));
+
+      imageState.queue = results.filter(Boolean);
+      if (imageState.queue.length) {
+        renderThumbnails('ready');
         $('#btn-upload').disabled = false;
-        const rawKB = (file.size / 1024).toFixed(0);
-        const compKB = ((dataUrl.length * 0.75) / 1024).toFixed(0);
-        $('#upload-status').textContent = `原始 ${rawKB}KB → 压缩 ${compKB}KB`;
-      }).catch(err => {
-        toast('图片处理失败: ' + err.message, 'error');
+        const rawTotal = imageState.queue.reduce((s, q) => s + q.file.size, 0);
+        const compTotal = imageState.queue.reduce((s, q) => s + q.dataUrl.length * 0.75, 0);
+        $('#upload-status').textContent = `${imageState.queue.length} 张 · 原始 ${(rawTotal/1024).toFixed(0)}KB → 压缩 ${(compTotal/1024).toFixed(0)}KB`;
+      } else {
+        clearUploadQueue();
         $('#upload-status').textContent = '';
+        $('#drop-zone').style.display = 'flex';
+      }
+    }
+
+    function renderThumbnails(mode) {
+      const grid = $('#thumb-grid');
+      grid.innerHTML = '';
+      if (mode === 'loading') {
+        grid.style.display = 'grid';
+        grid.innerHTML = '<div class="thumb-loading">处理中…</div>';
+        return;
+      }
+      grid.style.display = 'grid';
+      $('#upload-info').style.display = 'flex';
+      imageState.queue.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = 'thumb-item';
+        el.innerHTML = `<img src="${item.dataUrl}" alt=""><button class="thumb-remove" data-idx="${i}" title="移除">&times;</button>`;
+        grid.appendChild(el);
+      });
+      // bind remove buttons
+      grid.querySelectorAll('.thumb-remove').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx);
+          imageState.queue.splice(idx, 1);
+          if (imageState.queue.length) {
+            renderThumbnails('ready');
+            const rawTotal = imageState.queue.reduce((s, q) => s + q.file.size, 0);
+            const compTotal = imageState.queue.reduce((s, q) => s + q.dataUrl.length * 0.75, 0);
+            $('#upload-status').textContent = `${imageState.queue.length} 张 · 原始 ${(rawTotal/1024).toFixed(0)}KB → 压缩 ${(compTotal/1024).toFixed(0)}KB`;
+          } else {
+            clearUploadQueue();
+          }
+        };
       });
     }
 
-    function clearUploadPreview() {
-      imageState.selectedFile = null;
-      imageState.compressedDataUrl = null;
-      $('#upload-preview').style.display = 'none';
-      $('#upload-preview').innerHTML = '';
+    function clearUploadQueue() {
+      imageState.queue = [];
+      $('#thumb-grid').style.display = 'none';
+      $('#thumb-grid').innerHTML = '';
       $('#drop-zone').style.display = 'flex';
       $('#upload-info').style.display = 'none';
       $('#btn-upload').disabled = true;
@@ -1636,30 +1737,39 @@
     }
 
     async function uploadImage() {
-      if (!imageState.compressedDataUrl) {
+      if (!imageState.queue.length) {
         toast('请先选择图片', 'error');
         return false;
       }
       const btn = $('#btn-upload');
       btn.disabled = true;
-      try {
-        const data = await apiPost('/api/upload-image', {
-          image: imageState.compressedDataUrl,
-          filename: imageState.selectedFile.name,
-          senderId: DEVICE_ID
-        });
-        if (data.ok) {
-          clearUploadPreview();
-          await pollImageLatest();
-          toast('图片已上传', 'success');
-          return true;
+      const total = imageState.queue.length;
+      let ok = 0, fail = 0;
+
+      for (let i = 0; i < total; i++) {
+        const item = imageState.queue[i];
+        $('#upload-status').textContent = `上传中 (${i + 1}/${total})…`;
+        try {
+          const data = await apiPost('/api/upload-image', {
+            image: item.dataUrl,
+            filename: item.file.name,
+            senderId: DEVICE_ID
+          });
+          if (data.ok) ok++;
+        } catch (err) {
+          fail++;
+          toast(`${item.file.name} 上传失败: ${err.message}`, 'error');
         }
-      } catch (err) {
-        toast('上传失败: ' + err.message, 'error');
-        return false;
-      } finally {
-        btn.disabled = false;
       }
+
+      clearUploadQueue();
+      await pollImageLatest();
+      if (fail === 0) {
+        toast(`${ok} 张图片已上传`, 'success');
+      } else {
+        toast(`${ok} 张成功, ${fail} 张失败`, ok > 0 ? 'success' : 'error');
+      }
+      btn.disabled = false;
     }
 
     function renderReceivedImage(msg) {
@@ -1767,15 +1877,15 @@
     dropZone.ondrop = (e) => {
       e.preventDefault();
       dropZone.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length) addToQueue(files);
     };
 
-    $('#btn-remove-image').onclick = () => clearUploadPreview();
+    $('#btn-remove-image').onclick = () => clearUploadQueue();
 
     fileInput.onchange = () => {
-      const file = fileInput.files[0];
-      if (file) handleFile(file);
+      const files = Array.from(fileInput.files);
+      if (files.length) addToQueue(files);
     };
 
     $('#btn-paste-image').onclick = async () => {
@@ -1786,7 +1896,7 @@
             if (type.startsWith('image/')) {
               const blob = await item.getType(type);
               const file = new File([blob], 'clipboard.png', { type });
-              handleFile(file);
+              addToQueue([file]);
               return;
             }
           }
@@ -1807,7 +1917,7 @@
           e.preventDefault();
           const blob = item.getAsFile();
           const file = new File([blob], 'clipboard.png', { type: item.type });
-          handleFile(file);
+          addToQueue([file]);
           return;
         }
       }
