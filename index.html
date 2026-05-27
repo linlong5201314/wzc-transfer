@@ -518,11 +518,128 @@
       font-size: 13px;
     }
 
+    .image-history-grid {
+      max-height: 460px;
+    }
+
+    .history-thumb {
+      position: relative;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      aspect-ratio: 1;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.28);
+      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.25s var(--ease-out);
+    }
+
+    .history-thumb:hover {
+      border-color: rgba(10, 132, 255, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    .history-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .history-thumb .thumb-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      padding: 8px 10px;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      pointer-events: none;
+    }
+
+    .history-thumb .thumb-name {
+      font-size: 11px;
+      color: #fff;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-thumb .thumb-meta {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Lightbox overlay */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      animation: fade-in 0.2s ease-out;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 72vh;
+      object-fit: contain;
+      border-radius: var(--r-md);
+      box-shadow: 0 20px 60px -10px rgba(0,0,0,0.6);
+    }
+
+    .lightbox .lightbox-info {
+      color: var(--text-soft);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .lightbox .lightbox-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .lightbox .lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 0.5px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+    }
+
+    .lightbox .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
     .grid > .card:nth-child(1) { animation-delay: 0.1s; }
     .grid > .card:nth-child(2) { animation-delay: 0.2s; }
     .grid > .card:nth-child(3) { animation-delay: 0.3s; }
     .grid > .card:nth-child(4) { animation-delay: 0.35s; }
     .grid > .card:nth-child(5) { animation-delay: 0.4s; }
+    .grid > .card:nth-child(6) { animation-delay: 0.45s; }
 
     .card-title {
       display: flex;
@@ -1097,6 +1214,22 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
             粘贴图片
           </button>
+        </div>
+      </section>
+
+      <!-- 图片历史 -->
+      <section class="card span-full">
+        <h3 class="card-title">
+          <span class="title-text">
+            <span class="title-icon time">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </span>
+            图片历史
+          </span>
+          <span class="meta" id="image-history-count"></span>
+        </h3>
+        <div class="thumb-grid image-history-grid" id="image-history-grid">
+          <div class="history-empty">暂无图片</div>
         </div>
       </section>
 
@@ -1763,6 +1896,7 @@
 
       clearUploadQueue();
       await pollImageLatest();
+      await loadImageHistory();
       if (fail === 0) {
         toast(`${ok} 张图片已上传`, 'success');
       } else {
@@ -1845,11 +1979,96 @@
 
     function startImagePolling() {
       const tick = async () => {
-        await pollImageLatest();
+        await Promise.all([pollImageLatest(), loadImageHistory()]);
         const interval = document.hidden ? state.sleepInterval : state.pollInterval;
         setTimeout(tick, interval);
       };
       tick();
+    }
+
+    async function loadImageHistory() {
+      try {
+        const data = await apiGet('/api/image-history?count=48');
+        renderImageHistory(data.messages || []);
+      } catch (err) {
+        console.warn('image-history load failed:', err);
+      }
+    }
+
+    function renderImageHistory(messages) {
+      const grid = $('#image-history-grid');
+      const countEl = $('#image-history-count');
+
+      if (!messages.length) {
+        grid.innerHTML = '<div class="history-empty">暂无图片</div>';
+        countEl.textContent = '';
+        return;
+      }
+
+      countEl.textContent = messages.length + ' 张';
+      grid.innerHTML = '';
+      messages.forEach((m, i) => {
+        const el = document.createElement('div');
+        el.className = 'history-thumb';
+        el.innerHTML = `
+          <img src="${m.image}" alt="" loading="lazy">
+          <div class="thumb-overlay">
+            <span class="thumb-name">${escapeHtml(m.filename || '图片')}</span>
+            <span class="thumb-meta">
+              <span>${formatTime(m.timestamp)}</span>
+              <span class="device-tag${m.senderId === DEVICE_ID ? '' : ' remote'}" style="font-size:9px;padding:1px 6px;">${m.senderId === DEVICE_ID ? '本机' : '远端'}</span>
+            </span>
+          </div>`;
+        el.onclick = () => openLightbox(m);
+        el.title = '点击查看大图 / 右键保存';
+        grid.appendChild(el);
+      });
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function openLightbox(msg) {
+      const existing = document.querySelector('.lightbox');
+      if (existing) existing.remove();
+
+      const lb = document.createElement('div');
+      lb.className = 'lightbox';
+      lb.innerHTML = `
+        <button class="lightbox-close">&times;</button>
+        <img src="${msg.image}" alt="">
+        <div class="lightbox-info">${escapeHtml(msg.filename || '图片')} · ${formatTime(msg.timestamp)}</div>
+        <div class="lightbox-actions">
+          <button class="btn primary" id="lb-download" style="flex:none;padding:0 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            下载
+          </button>
+          <button class="btn" id="lb-copy" style="flex:none;padding:0 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><rect x="9" y="9" width="13" height="13" rx="3"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            复制
+          </button>
+        </div>`;
+
+      lb.querySelector('.lightbox-close').onclick = () => lb.remove();
+      lb.querySelector('#lb-download').onclick = () => {
+        downloadImage(msg.image, msg.filename);
+        toast('开始下载', 'success');
+      };
+      lb.querySelector('#lb-copy').onclick = async () => {
+        const ok = await copyImageToClipboard(msg.image);
+        toast(ok ? '已复制' : '复制失败', ok ? 'success' : 'error');
+      };
+      lb.addEventListener('click', (e) => {
+        if (e.target === lb) lb.remove();
+      });
+      document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', escHandler); }
+      });
+
+      document.body.appendChild(lb);
     }
 
     // --- 图片事件绑定 ---
