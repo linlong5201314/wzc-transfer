@@ -1273,7 +1273,10 @@
             </span>
             图片历史
           </span>
-          <span class="meta" id="image-history-count"></span>
+          <span style="display:flex;align-items:center;gap:10px;">
+            <span class="meta" id="image-history-count"></span>
+            <button class="btn ghost danger" id="btn-clear-image-history" style="padding:0 14px;font-size:12px;height:30px;flex:none;min-width:auto;border-radius:980px;font-weight:600;">清空图片</button>
+          </span>
         </h3>
         <div class="thumb-grid image-history-grid" id="image-history-grid">
           <div class="history-empty">暂无图片</div>
@@ -1761,6 +1764,7 @@
         imageState.lastTimestamp = 0;
         imageState.latest = null;
         renderReceivedImage(null);
+        renderImageHistory([]);
         toast('已清空', 'success');
       } catch (e) {
         toast('清空失败: ' + e.message, 'error');
@@ -2216,6 +2220,20 @@
       if (!imageState.latest || !imageState.latest.image) return;
       const ok = await copyImageToClipboard(imageState.latest.image);
       toast(ok ? '图片已复制到剪贴板' : '复制失败（浏览器可能不支持）', ok ? 'success' : 'error');
+    };
+
+    $('#btn-clear-image-history').onclick = async () => {
+      if (!confirm('确定清空所有图片历史?(双方设备都会清空)')) return;
+      try {
+        await apiPost('/api/clear-images');
+        imageState.lastTimestamp = 0;
+        imageState.latest = null;
+        renderReceivedImage(null);
+        renderImageHistory([]);
+        toast('图片历史已清空', 'success');
+      } catch (e) {
+        toast('清空图片失败: ' + e.message, 'error');
+      }
     };
 
     const dropZone = $('#drop-zone');
